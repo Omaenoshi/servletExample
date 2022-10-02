@@ -5,8 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,10 +26,13 @@ public class MainServlet extends HttpServlet {
         File dir = new File(path);
         if (dir.isDirectory()) {
             getFiles(req, dir);
-        }
 
-        RequestDispatcher requestDispatcher = req.getRequestDispatcher("explore.jsp");
-        requestDispatcher.forward(req, resp);
+            RequestDispatcher requestDispatcher = req.getRequestDispatcher("explore.jsp");
+            requestDispatcher.forward(req, resp);
+        }
+        else {
+            downloadFile(resp, dir);
+        }
     }
 
     private void getFiles(HttpServletRequest req, File file) {
@@ -40,6 +42,22 @@ public class MainServlet extends HttpServlet {
         }
         List<File> lst = Arrays.asList(arrFiles);
         req.setAttribute("elements", lst);
+    }
+
+    private void downloadFile(HttpServletResponse resp, File file) {
+        resp.setContentType("text/plain");
+        resp.setHeader("Content-disposition", "attachment; filename=" + file.getName());
+
+        try (InputStream in = new FileInputStream(file); OutputStream out = resp.getOutputStream()) {
+            byte[] buffer = new byte[1048];
+
+            int numBytesRead;
+            while ((numBytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, numBytesRead);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
