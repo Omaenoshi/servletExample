@@ -2,6 +2,7 @@ package org.example.demo;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,15 +16,26 @@ public class MainServlet extends HttpServlet {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        if (user == null) {
+            resp.sendRedirect("/login");
+            return;
+        }
+
         req.setAttribute("date", DATE_FORMAT.format(new Date()));
         String path = req.getParameter("path");
-        if (path == null) {
-            path = "C:/";
+
+        if (path == null || !path.contains(user.getLogin())) {
+            path = "C:/" + user.getLogin();
         }
         path = path.replaceAll("%20", " ");
+
         req.setAttribute("path", path);
         File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
         if (dir.isDirectory()) {
             getFiles(req, dir);
 
@@ -33,6 +45,19 @@ public class MainServlet extends HttpServlet {
         else {
             downloadFile(resp, dir);
         }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null)
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            }
+
+        RequestDispatcher dispatcher = req.getRequestDispatcher("authentication/login.jsp");
+        dispatcher.forward(req, resp);
     }
 
     private void getFiles(HttpServletRequest req, File file) {
