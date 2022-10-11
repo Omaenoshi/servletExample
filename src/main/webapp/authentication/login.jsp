@@ -19,7 +19,7 @@
             <input type="password" maxlength="25" size="40" name="password"></p>
         <button type="submit">Войти</button>
     </form>
-    <a href="/registration">
+    <a href="${contextPath}/registration">
         <button>Зарегистрироваться</button>
     </a>
 </body>

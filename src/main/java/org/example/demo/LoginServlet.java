@@ -13,8 +13,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        req.setAttribute("contextPath", req.getContextPath());
         if (user != null) {
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getContextPath() + "/");
             return;
         }
 
@@ -26,19 +27,22 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String login = req.getParameter("login");
         String password = req.getParameter("password");
+        req.setAttribute("contextPath", req.getContextPath());
 
-        if (login == null|| password == null) {
+        if (login == null || password == null) {
             return;
         }
 
+
         User user = UserRepository.USER_REPOSITORY.getUserByLogin(login);
         if (user == null || !user.getPassword().equals(password)) {
-            resp.sendRedirect("/login");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
         resp.addCookie(new Cookie("login", login));
         resp.addCookie(new Cookie("password", password));
-        resp.sendRedirect("/");
+
+        resp.sendRedirect(req.getContextPath() + "/");
     }
 }

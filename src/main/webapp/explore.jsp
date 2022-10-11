@@ -10,9 +10,9 @@
     </form>
     <p>${date}</p>
     <h1>${path}</h1>
-    <p><a href="/files?path=${path.substring(0, path.lastIndexOf("/"))}">Назад</a></p>
+    <p><a href="${contextPath}/files?path=${path.substring(0, path.lastIndexOf("/"))}">Назад</a></p>
     <c:forEach var="el" items="${elements}">
-        <p><a href="/files?path=${el.getAbsolutePath().replace("\\", "/")}">${el.getName()} (${el.isDirectory() ? "D" : "F"})</a></p>
+        <p><a href="${contextPath}/files?path=${el.getAbsolutePath().replace("\\", "/")}">${el.getName()} (${el.isDirectory() ? "D" : "F"})</a></p>
     </c:forEach>
 </body>
 </html>

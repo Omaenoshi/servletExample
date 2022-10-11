@@ -19,11 +19,12 @@ public class MainServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
         if (user == null) {
-            resp.sendRedirect("/login");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
         req.setAttribute("date", DATE_FORMAT.format(new Date()));
+        req.setAttribute("contextPath", req.getContextPath());
         String path = req.getParameter("path");
 
         if (path == null || !path.contains(user.getLogin())) {
@@ -56,8 +57,7 @@ public class MainServlet extends HttpServlet {
                 resp.addCookie(cookie);
             }
 
-        RequestDispatcher dispatcher = req.getRequestDispatcher("authentication/login.jsp");
-        dispatcher.forward(req, resp);
+        resp.sendRedirect(req.getContextPath() + "/login");
     }
 
     private void getFiles(HttpServletRequest req, File file) {

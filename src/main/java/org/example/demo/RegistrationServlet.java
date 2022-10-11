@@ -14,7 +14,7 @@ public class RegistrationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
         if (user != null) {
-            resp.sendRedirect("/");
+            resp.sendRedirect(req.getContextPath() + "/");
             return;
         }
 
@@ -32,7 +32,7 @@ public class RegistrationServlet extends HttpServlet {
             return;
         }
         if (UserRepository.USER_REPOSITORY.getUserByLogin(login) != null) {
-            resp.sendRedirect("/login");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
@@ -40,6 +40,6 @@ public class RegistrationServlet extends HttpServlet {
         UserRepository.USER_REPOSITORY.addUserByLogin(user, login);
         resp.addCookie(new Cookie("login", login));
         resp.addCookie(new Cookie("password", password));
-        resp.sendRedirect("/");
+        resp.sendRedirect(req.getContextPath() + "/");
     }
 }
