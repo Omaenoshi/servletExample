@@ -1,6 +1,6 @@
 package org.example.demo;
 
-public class User {
+public class User{
     private final String login;
     private final String password;
     private final String email;

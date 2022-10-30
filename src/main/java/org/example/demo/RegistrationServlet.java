@@ -7,12 +7,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        User user;
+        try {
+            user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (user != null) {
             resp.sendRedirect(req.getContextPath() + "/");
             return;
@@ -23,7 +29,7 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String login = req.getParameter("login");
         String password = req.getParameter("password");
         String email = req.getParameter("email");
@@ -31,13 +37,21 @@ public class RegistrationServlet extends HttpServlet {
         if (login == null || password == null || email == null) {
             return;
         }
-        if (UserRepository.USER_REPOSITORY.getUserByLogin(login) != null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+        try {
+            if (UserRepository.USER_REPOSITORY.getUser(login) != null) {
+                resp.sendRedirect(req.getContextPath() + "/login");
+                return;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         User user = new User(login, password, email);
-        UserRepository.USER_REPOSITORY.addUserByLogin(user, login);
+        try {
+            UserRepository.USER_REPOSITORY.insertUser(user);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         resp.addCookie(new Cookie("login", login));
         resp.addCookie(new Cookie("password", password));
         resp.sendRedirect(req.getContextPath() + "/");

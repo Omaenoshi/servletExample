@@ -7,18 +7,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class MainServlet extends HttpServlet {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        User user;
+        try {
+            user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
@@ -51,7 +57,7 @@ public class MainServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
         Cookie[] cookies = req.getCookies();
         if (cookies != null)
             for (Cookie cookie : cookies) {

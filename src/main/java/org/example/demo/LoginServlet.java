@@ -7,12 +7,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        User user;
+        try {
+            user = UserRepository.USER_REPOSITORY.getUserByCookies(req.getCookies());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         req.setAttribute("contextPath", req.getContextPath());
         if (user != null) {
             resp.sendRedirect(req.getContextPath() + "/");
@@ -24,7 +30,7 @@ public class LoginServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
         String login = req.getParameter("login");
         String password = req.getParameter("password");
         req.setAttribute("contextPath", req.getContextPath());
@@ -34,7 +40,12 @@ public class LoginServlet extends HttpServlet {
         }
 
 
-        User user = UserRepository.USER_REPOSITORY.getUserByLogin(login);
+        User user;
+        try {
+            user = UserRepository.USER_REPOSITORY.getUser(login);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (user == null || !user.getPassword().equals(password)) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
