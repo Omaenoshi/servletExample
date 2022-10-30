@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>file-manager</servlet-name>
-        <servlet-class>org.example.demo.MainServlet</servlet-class>
+        <servlet-class>org.example.demo.servlet.MainServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -16,7 +16,7 @@
 
     <servlet>
         <servlet-name>login-servlet</servlet-name>
-        <servlet-class>org.example.demo.LoginServlet</servlet-class>
+        <servlet-class>org.example.demo.servlet.LoginServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -26,7 +26,7 @@
 
     <servlet>
         <servlet-name>registration-servlet</servlet-name>
-        <servlet-class>org.example.demo.RegistrationServlet</servlet-class>
+        <servlet-class>org.example.demo.servlet.RegistrationServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

@@ -1,4 +1,4 @@
-package org.example.demo;
+package org.example.demo.db;
 
 import javax.servlet.http.Cookie;
 

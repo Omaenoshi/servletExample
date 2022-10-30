@@ -1,4 +1,7 @@
-package org.example.demo;
+package org.example.demo.servlet;
+
+import org.example.demo.db.UserRepository;
+import org.example.demo.entity.User;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -9,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class RegistrationServlet extends HttpServlet {
+public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -19,41 +22,41 @@ public class RegistrationServlet extends HttpServlet {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        req.setAttribute("contextPath", req.getContextPath());
         if (user != null) {
             resp.sendRedirect(req.getContextPath() + "/");
             return;
         }
 
-        RequestDispatcher dispatcher = req.getRequestDispatcher("authentication/registration.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("authentication/login.jsp");
         dispatcher.forward(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
         String login = req.getParameter("login");
         String password = req.getParameter("password");
-        String email = req.getParameter("email");
+        req.setAttribute("contextPath", req.getContextPath());
 
-        if (login == null || password == null || email == null) {
+        if (login == null || password == null) {
             return;
         }
+
+
+        User user;
         try {
-            if (UserRepository.USER_REPOSITORY.getUser(login) != null) {
-                resp.sendRedirect(req.getContextPath() + "/login");
-                return;
-            }
+            user = UserRepository.USER_REPOSITORY.getUser(login);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+        if (user == null || !user.getPassword().equals(password)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
 
-        User user = new User(login, password, email);
-        try {
-            UserRepository.USER_REPOSITORY.insertUser(user);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
         resp.addCookie(new Cookie("login", login));
         resp.addCookie(new Cookie("password", password));
+
         resp.sendRedirect(req.getContextPath() + "/");
     }
 }
