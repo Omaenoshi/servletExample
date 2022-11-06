@@ -1,4 +1,7 @@
-package org.example.demo;
+package org.example.demo.servlet;
+
+import org.example.demo.db.UserRepository;
+import org.example.demo.entity.User;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
